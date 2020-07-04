@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/false
 # Copyright (c) 2019 Dyne.org Foundation
 # arm-sdk is written and maintained by Ivan J. <parazyd@dyne.org>
 #
@@ -22,7 +22,6 @@ vars+=(device_name arch size parted_type parted_boot parted_root bootfs inittab)
 vars+=(gitkernel gitkernel atf_git atf_branch atf_platform)
 arrs+=(custmodules)
 
-device_name="librem5"
 arch="arm64"
 size=2048
 inittab=()
@@ -36,19 +35,8 @@ bootfs="ext2"
 extra_packages+=()
 custmodules=()
 
-gitbranch="imx8-current-librem5"
-gitkernel="https://source.puri.sm/Librem5/linux-next.git"
-
 #m4_branch="master"
 #m4_git="https://source.puri.sm/Librem5/Cortex_M4.git"
-
-atf_platform="imx8mq"
-atf_branch="librem5"
-atf_git="https://source.puri.sm/Librem5/arm-trusted-firmware.git"
-
-uboot_defconfig="librem5"
-uboot_branch="librem5"
-uboot_git="https://source.puri.sm/Librem5/uboot-imx.git"
 
 #flash_kernel_branch="librem5"
 #flash_kernel_git="https://source.puri.sm/Librem5/flash-kernel.git"
@@ -130,15 +118,22 @@ postbuild() {
 	# sudo dd conv=notrunc,sync if="$tmpp/m4/m4.bin" bs=1024 seek=2 of="$loopdevice" # 2 * 1024 = 4 * 512
 	sudo dd conv=notrunc,sync if="$tmpp/uboot/u-boot.imx" bs=1024 seek=33 of="$loopdevice"
 
-	wget "http://repo.dpa.li/apt/librem5/pool/librem5/f/flash-kernel/flash-kernel_3.99pureos+l5ib~devuan-beowulf~git-tags-pureos-3-99pureos-libre5-4-0-1200-a88b86e18f2e1ba50835f8155359d1323b0e26df_arm64.deb" -O "${strapdir}/tmp/flash-kernel.deb"
+	if [ -n "$FK_DEB_URL" ]
+		then wget "$FK_DEB_URL" -O "${strapdir}/tmp/flash-kernel.deb"
+	fi
 
 	sudo cat <<EOF >"${strapdir}/l5.sh"
 #!/bin/sh
 cd /tmp/
-export FK_MACHINE="Purism Librem 5"
+export FK_MACHINE="$FK_MACHINE"
 apt-get -y install u-boot-tools
-dpkg -i flash-kernel.deb
-apt-get -f -y install
+if [ -f flash-kernel.deb ]
+then
+  dpkg -i flash-kernel.deb
+  apt-get -f -y install
+else
+  apt-get -y install flash-kernel
+fi
 dpkg -i linux-*.deb
 EOF
 	chroot-script -d "l5.sh"

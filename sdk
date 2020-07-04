@@ -83,7 +83,8 @@ load() {
 		"pinephone-dontbeevil"      "$R/boards/pinephone-dontbeevil.sh"
 		"pinephone"                 "$R/boards/pinephone.sh"
 		"pinetab"                   "$R/boards/pinetab.sh"
-		"librem5"                   "$R/boards/librem5.sh"
+		"librem5-phone"             "$R/boards/librem5-phone.sh"
+		"librem5-devkit"            "$R/boards/librem5-devkit.sh"
 		"sunxi"                     "$R/boards/sunxi.sh"
 		"turbox-twister"            "$R/boards/turbox-twister.sh"
 	)
